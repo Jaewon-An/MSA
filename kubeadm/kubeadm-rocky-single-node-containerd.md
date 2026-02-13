@@ -38,9 +38,9 @@ free -h
 
 **예상:** `Swap` 행의 사용량이 0B로 표시됩니다.
 
-### 1-3. 커널 모듅 로드 및 영구 설정
+### 1-3. 커널 MOD 로드 및 영구 설정
 ```bash
-# 필요한 모듅 로드
+# 필요한 MOD 로드
 sudo modprobe overlay
 sudo modprobe br_netfilter
 
@@ -128,18 +128,18 @@ ls -la /run/containerd/containerd.sock
 
 ### 3-1. Kubernetes 패키지 저장소 추가
 ```bash
-# Kubernetes 공식 저장소 (v1.28 기준, 필요 시 버전 변경)
+# Kubernetes 공식 저장소 (v1.35 기준, 필요 시 버전 변경)
 cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
-baseurl=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/
+baseurl=https://pkgs.k8s.io/core:/stable:/v1.35/rpm/
 enabled=1
 gpgcheck=1
-gpgkey=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/repodata/repomd.xml.key
+gpgkey=https://pkgs.k8s.io/core:/stable:/v1.35/rpm/repodata/repomd.xml.key
 EOF
 ```
 
-> 다른 버전이 필요하면 `v1.28`을 `v1.29` 등으로 변경하고, [공식 문서](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)의 저장소 URL을 참고하세요.
+> 다른 버전이 필요하면 `v1.35`를 원하는 버전으로 변경하고, [공식 문서](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)의 저장소 URL을 참고하세요.
 
 ### 3-2. kubeadm, kubelet, kubectl 설치
 ```bash
@@ -159,9 +159,9 @@ kubelet --version
 
 **예상 출력 예:**
 ```
-kubeadm version: &version.Info{Major:"1", Minor:"28", ...}
-Client Version: v1.28.x
-Kubernetes v1.28.x
+kubeadm version: &version.Info{Major:"1", Minor:"35", ...}
+Client Version: v1.35.x
+Kubernetes v1.35.x
 ```
 
 ---
@@ -258,7 +258,7 @@ kubectl get pods -A
 **예상 출력 예:**
 ```
 NAME     STATUS   ROLES           AGE   VERSION
-rocky1   Ready    control-plane   10m   v1.28.x
+rocky1   Ready    control-plane   10m   v1.35.x
 
 NAMESPACE     NAME                               READY   STATUS    RESTARTS   AGE
 kube-system   coredns-xxx                         1/1     Running   0          8m
@@ -289,8 +289,8 @@ kubectl delete pod nginx
 | CNI | Flannel (또는 Calico) |
 | CRI 소켓 | `unix:///run/containerd/containerd.sock` |
 
-- **kubeadm 업그레이드:** [공식 업그레이드 가이드](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/) 참고  
-- **worker 노드 추가:** `kubeadm init` 출력에 있는 `kubeadm join ...` 명령을 worker 서버에서 실행  
+- **kubeadm 업그레이드:** [공식 업그레이드 가이드](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/) 참고
+- **worker 노드 추가:** `kubeadm init` 출력에 있는 `kubeadm join ...` 명령을 worker 서버에서 실행
 - **문제 발생 시:** `journalctl -xeu kubelet`, `crictl ps`(containerd 컨테이너 확인)로 점검
 
 ---
