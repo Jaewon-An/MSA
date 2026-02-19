@@ -1,0 +1,4 @@
+server = "https://172.16.0.194:5000"
+[host."https://172.16.0.194:5000"]
+  ca = "/etc/containerd/certs.d/172.16.0.194:5000/ca.crt"
+  skip_verify = false
