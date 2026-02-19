@@ -18,15 +18,25 @@ spec:
       imagePullSecrets:
         - name: registry-secret
       containers:
-        - name: h-cms
+        - name: hcms
           image: '172.16.0.194:5000/h-cms:latest'
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: 'dev'
+            # Spring <beans profile="dev"> 활성화에는 spring.profiles.active 시스템 프로퍼티 필요
+            - name: CATALINA_OPTS
+              value: '-Dprofile=dev -Dspring.profiles.active=dev'
+            - name: PROFILE
+              value: 'dev'
           volumeMounts:
-            # Tomcat 설정 디렉터리를 컨테이너 바깥(호스트) 볼륨으로 마운트
             - name: tomcat-conf
               mountPath: /usr/local/tomcat/conf
+              readOnly: false
+            - name: webapp-root
+              mountPath: /usr/local/tomcat/webapps/external-root
               readOnly: false
           resources:
             requests:
@@ -35,22 +45,26 @@ spec:
             limits:
               memory: '512Mi'
               cpu: '500m'
-          # TCP 프로브: 8080 포트만 확인 (루트(/)가 404여도 통과)
           livenessProbe:
-            tcpSocket:
-              port: 8080
-            initialDelaySeconds: 90
-            periodSeconds: 10
-          readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /
               port: 8080
             initialDelaySeconds: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
             periodSeconds: 5
       volumes:
-        # 호스트의 설정 디렉터리. 경로는 노드 환경에 맞게 변경 (예: /opt/tomcat-deploy/h-cms/conf)
         - name: tomcat-conf
           hostPath:
-            path: /root/tomcat-war-deploy/h-cms/conf
+            path: /home/jnet/tomcat-war-deploy/h-cms/conf
+            type: DirectoryOrCreate
+        - name: webapp-root
+          hostPath:
+            path: /home/jnet/tomcat-war-deploy/h-cms/webapp
             type: DirectoryOrCreate
 ---
 apiVersion: v1

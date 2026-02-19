@@ -72,6 +72,7 @@
                connectionTimeout="20000"
                redirectPort="8443"
                maxParameterCount="1000"
+              URIEncoding="UTF-8"
                />
     <!-- A "Connector" using the shared thread pool-->
     <!--
@@ -175,6 +176,10 @@
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
                prefix="localhost_access_log" suffix=".txt"
                pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+
+        <!-- ROOT context configuration with external directory -->
+        <Context path="" docBase="/usr/local/tomcat/webapps/external-root" reloadable="true">
+        </Context>
 
       </Host>
     </Engine>
