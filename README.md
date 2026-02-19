@@ -16,7 +16,8 @@ root 계정이 아닌 일반 사용자 계정에 `sudo` 권한을 부여한 뒤 
 
 ## 기타 문서
 
-- [kubeadm 단일 노드 설치 (Rocky Linux + containerd)](./kubeadm/kubeadm-rocky-single-node-containerd.md)
+- [kubeadm 단일 노드 설치 (Rocky Linux + containerd)](./kubeadm/01.kubeadm-rocky-single-node-containerd.md)
+- [Tomcat + WAR Kubernetes 배포 (kubeadm)](./kubeadm/07.tomcat-war-deploy.md)
 
 ## 1) wheel 그룹에 사용자 추가 (권장)
 
