@@ -23,6 +23,11 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          volumeMounts:
+            # Tomcat 설정 디렉터리를 컨테이너 바깥(호스트) 볼륨으로 마운트
+            - name: tomcat-conf
+              mountPath: /usr/local/tomcat/conf
+              readOnly: false
           resources:
             requests:
               memory: '256Mi'
@@ -30,18 +35,23 @@ spec:
             limits:
               memory: '512Mi'
               cpu: '500m'
+          # TCP 프로브: 8080 포트만 확인 (루트(/)가 404여도 통과)
           livenessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: 8080
-            initialDelaySeconds: 60
+            initialDelaySeconds: 90
             periodSeconds: 10
           readinessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: 8080
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             periodSeconds: 5
+      volumes:
+        # 호스트의 설정 디렉터리. 경로는 노드 환경에 맞게 변경 (예: /opt/tomcat-deploy/h-cms/conf)
+        - name: tomcat-conf
+          hostPath:
+            path: /root/tomcat-war-deploy/h-cms/conf
+            type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service
