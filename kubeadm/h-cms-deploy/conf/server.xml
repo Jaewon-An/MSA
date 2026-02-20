@@ -177,9 +177,6 @@
                prefix="localhost_access_log" suffix=".txt"
                pattern="%h %l %u %t &quot;%r&quot; %s %b" />
 
-        <!-- ROOT context configuration with external directory -->
-        <Context path="" docBase="/usr/local/tomcat/webapps/external-root" reloadable="true">
-        </Context>
 
       </Host>
     </Engine>

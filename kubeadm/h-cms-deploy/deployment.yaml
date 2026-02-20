@@ -1,3 +1,4 @@
+# Argo CD에서 동기화하여 배포. 이미지 태그는 Jenkins 빌드 후 Git에 반영하면 Argo CD가 자동 반영함.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,6 +6,8 @@ metadata:
   namespace: dev
   labels:
     app: h-cms
+    app.kubernetes.io/name: h-cms
+    app.kubernetes.io/component: app
 spec:
   replicas: 1
   selector:
@@ -24,19 +27,13 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: 'dev'
-            # Spring <beans profile="dev"> 활성화에는 spring.profiles.active 시스템 프로퍼티 필요
             - name: CATALINA_OPTS
               value: '-Dprofile=dev -Dspring.profiles.active=dev'
             - name: PROFILE
               value: 'dev'
           volumeMounts:
-            - name: tomcat-conf
-              mountPath: /usr/local/tomcat/conf
-              readOnly: false
             - name: webapp-root
-              mountPath: /usr/local/tomcat/webapps/external-root
+              mountPath: /usr/local/tomcat/webapps/ROOT
               readOnly: false
           resources:
             requests:
@@ -64,10 +61,6 @@ spec:
             failureThreshold: 3
             successThreshold: 1
       volumes:
-        - name: tomcat-conf
-          hostPath:
-            path: /home/jnet/tomcat-war-deploy/h-cms/conf
-            type: DirectoryOrCreate
         - name: webapp-root
           hostPath:
             path: /home/jnet/tomcat-war-deploy/h-cms/webapp
@@ -78,6 +71,10 @@ kind: Service
 metadata:
   name: h-cms
   namespace: dev
+  labels:
+    app: h-cms
+    app.kubernetes.io/name: h-cms
+    app.kubernetes.io/component: app
 spec:
   selector:
     app: h-cms
