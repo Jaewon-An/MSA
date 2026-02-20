@@ -1,0 +1,40 @@
+pipeline {
+  agent any
+  environment {
+    MAVEN_OPTS = '-Xmx2048m -Xms256m'
+    REGISTRY = '172.16.0.194:5000'
+    APP_NAME = 'h-cms'
+    IMAGE = "${REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}"
+    IMAGE_LATEST = "${REGISTRY}/${APP_NAME}:latest"
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+    stage('Build WAR') {
+      steps {
+        sh 'mvn clean package -DskipTests'
+        sh 'cp humanframe.web/target/*.war app.war'
+      }
+    }
+    stage('Docker Build & Push') {
+      steps {
+        script {
+          docker.build("${REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}")
+          docker.withRegistry("https://${REGISTRY}", 'registry-credentials') {
+            def img = docker.image("${REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}")
+            img.push()
+            img.push('latest')
+          }
+        }
+      }
+    }
+  }
+  post {
+    always {
+      cleanWs()
+    }
+  }
+}
